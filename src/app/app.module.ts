@@ -5,18 +5,39 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { FormsModule } from '@angular/forms';
+import { APP_INITIALIZER } from "@angular/core";
+import { TokenProviderService } from './token-provider.service';
+import { AppInitService } from './app-init.service';
+import { HttpClientModule } from  '@angular/common/http';
+import { WelcomeComponent } from './welcome/welcome.component';
+import { RouterModule } from '@angular/router';
+
+export function servicesOnRun(token: TokenProviderService) {
+  console.log("servicesOnRun called");
+  return () => token.load();
+}
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent
+    LoginComponent,
+    WelcomeComponent
   ],
   imports: [
-    BrowserModule,
     AppRoutingModule,
-    FormsModule
+    BrowserModule,
+    FormsModule,
+    HttpClientModule 
   ],
-  providers: [],
+  providers: [
+    AppInitService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: servicesOnRun,
+      multi: true,
+      deps: [TokenProviderService]
+    }
+  ],
   bootstrap: [LoginComponent]
 })
 export class AppModule { }
